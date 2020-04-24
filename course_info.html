@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Course Information</title>
+</head>
+<body>
+    <div class = "container-sm">
+        <div class = "content">
+            <p>
+                Course_ID : {{course[0][0]}}
+                <!--
+                Name      : {{course[0][1]}}
+                Section   : {{section}}
+                -->
+
+                Professor : {{prof_info[0][0]}}
+                Contact   : {{prof_info[0][1]}}
+                Office    : {{prof_info[0][2]}}
+            </p>
+        </div>
+        <!--
+        <div class = "content">
+            <h4>GRADES :</h4>
+            <table class = "table table-dark">
+                <th>
+                    <td>Homework Number</td>
+                    <td>Description</td>
+                    <td>Grade</td>
+                </th>
+                <tbody>
+                    {% for homework in %}
+                    <tr>
+                        <td>{{}}</td>
+                        <td>{{}}</td>
+                        <td>{{}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <table class = "table table-dark">
+                <th>
+                    <td>Exam Number</td>
+                    <td>Description</td>
+                    <td>Grade</td>
+                </th>
+                <tbody>
+                    {% for  in %}
+                    <tr>
+                        <td>{{}}</td>
+                        <td>{{}}</td>
+                        <td>{{}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        -->
+    </div>
+    <!--
+    <div class = "container-sm">
+        <h2>Discussions ( POSTS AND COMMENTS )</h2>
+        {% for  in  %}
+        <p>
+            Post Number : {{}} BY : {{}}
+            {{}}
+        </p>
+            <p>Comment</p>
+            {% for  in %}
+            <p>
+                BY: {{}}
+                {{}}
+            </p>
+            {% endfor %}
+        {% endfor %}
+    </div>
+    <form action = "{{ url_for('display_course', email=email, course_id = , section = )}}" method="POST">
+        <a class = "btn btn-success" href="{{ url_for('Student', user = email)}}" role="button">Go Back</a>
+    </form>
+    -->
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Personal Info</title>
+</head>
+<body>
+    <div class = "container-sm">
+        <div class = "card-body">
+            <h2 class = "class-title">Info :</h2>
+            <table class = "table table-dark">
+                <tbody>
+                    <tr>
+                        <th>Name :</th>
+                        <th>{{info[0][0]}}</th>
+                    </tr>
+                    <tr>
+                        <th>Age :</th>
+                        <th>{{info[0][1]}}</th>
+                    </tr>
+                    <tr>
+                        <th>Gender :</th>
+                        <th>{{info[0][2]}}</th>
+                    </tr>
+                    <tr>
+                        <th>Major :</th>
+                        <th>{{info[0][3]}}</th>
+                    </tr>
+                    <tr>
+                        <th>Address :</th>
+                        <th>{{info[0][4]}}</th>
+                    </tr>
+                    <tr>
+                        <th>Zip Code:</th>
+                        <th>{{info[0][5]}}</th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class = "class-body">
+            <a class = "btn btn-success" href="{{ url_for('change_password', email=info[0][6], login_type = 'Students')}}" role = "button">Update Password</a>
+            <a class = "btn btn-success" href="{{ url_for('Student', user = info[0][6])}}" role="button">Go Back</a>
+        </div>
+    </div>
+</body>
+</html>
