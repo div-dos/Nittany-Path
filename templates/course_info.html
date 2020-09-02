@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Course Information</title>
+</head>
+<body>
+    <div class = "container-sm">
+        <form method = "POST">
+            <div align = 'right'>
+                <br>
+                <button type ="submit" class = "btn btn-success" name = "submit_button" value = "drop_course">Drop Course</button>
+            </div>
+        </form>
+        <div class = "content">
+            <p>
+                Course_ID : {{course[0][0]}}<br>
+                
+                Name      : {{course[0][1]}}<br>
+                Section   : {{section}}<br><br>
+                Description: {{course[0][2]}}<br><br>
+                
+
+                Professor : {{prof_info[0][1]}}<br>
+                Contact   : {{prof_info[0][1]}}<br>
+                Office    : {{prof_info[0][2]}}<br><br>
+            </p>
+        </div>
+        
+        <div class = "content">
+            <h6>Assignments :</h6>
+            <table class = "table table-dark">
+                <tr>
+                    <td>Homework Number</td>
+                    <td>Description</td>
+                    <td>Grade</td>
+                </tr>
+                <tbody>
+                    {% for hw, desc in hw%}
+                    {% for hw_1, grade in hw_grade%}
+                    {% if hw==hw_1%}
+                    <tr>
+                        <td>{{hw}}</td>
+                        <td>{{desc}}</td>
+                        <td>{{grade}}</td>
+                    </tr>
+                    {%else%}
+                    <tr>
+                        <td>{{hw}}</td>
+                        <td>{{desc}}</td>
+                        <td>Not Graded</td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+            <table class = "table table-dark">
+                <tr>
+                    <td>Exam Number</td>
+                    <td>Description</td>
+                    <td>Grade</td>
+                </tr>
+                <tbody>
+                    {% for exam, desc in exam%}
+                    {% for exam_1, grade in exam_grade%}
+                    {% if exam==exam_1%}
+                    <tr>
+                        <td>{{exam}}</td>
+                        <td>{{desc}}</td>
+                        <td>{{grade}}</td>
+                    </tr>
+                    {%else%}
+                    <tr>
+                        <td>{{exam}}</td>
+                        <td>{{desc}}</td>
+                        <td>Not Graded</td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div>
+        <a class = "btn btn-success" href="{{ url_for('Student', user = email)}}" role="button">Go Back</a>
+        </div><br>
+        <div>
+            {% if error %}
+                <p class="error"><strong>Message :</strong> {{ error }}
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

@@ -13,7 +13,7 @@
         <a align = "left" class="btn btn-success" href="/" role="button">Logout</a>
     </div>
 <div class = "container-sm">
-    <a class = "btn btn-success" href="{{ url_for('display_personal_info', email=student_email)}}" role = "button">Display Personal Information</a>
+    <a class = "btn btn-success" href="{{ url_for('display_personal_info', email=student_email, login_type = 'Student')}}" role = "button">Display Personal Information</a>
 </div>
 <div class = "container-sm">
     <table class = "table table-dark">
@@ -30,10 +30,6 @@
             {% endfor %}
         </tbody>
     </table>
-</div>
-<div class = "container-sm">
-    <h5 class = "drop-course title">Options:</h5>
-    <a class = "btn btn-success" href = "/student/dropcourse" role = "button">Drop Course</a>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"

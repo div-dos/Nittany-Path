@@ -11,7 +11,7 @@ conn = sqlite3.connect('Database/final_test.db')
 
 #Students
 students = data_s[['Full Name', 'Age', 'Gender', 'Major', 'Street', 'Zip', 'Email', 'Password']]
-student = students.rename(columns={'Full Name':'Name', 'Zip':'Zipcode'})
+student = students.rename(columns={'Full Name':'Name', 'Zip':'Zipcode'}).sort_values(by='Name')
 student.to_sql('Students', conn, if_exists = 'replace', index = False)
 
 #Zipcodes
@@ -42,7 +42,7 @@ final_course.to_sql('Courses', conn, if_exists = 'replace', index = False)
 
 #Sections
 sections_courseID = data_p[['Teaching', 'Teaching Team ID']]
-sec_courseID = sections_courseID.rename(columns={'Teaching':'Course_id'})
+sec_courseID = sections_courseID.rename(columns={'Teaching':'Course_id', 'Teaching Team ID':'Teaching_team_id'})
 section_numberlimit_1 = data_s[['Courses 1', 'Course 1 Section', 'Course 1 Section Limit']]
 section_numberlimit_2 = data_s[['Courses 2', 'Course 2 Section', 'Course 2 Section Limit']]
 section_numberlimit_3 = data_s[['Courses 3', 'Course 3 Section', 'Course 3 Section Limit']]
@@ -83,13 +83,28 @@ hw = pd.concat([hw_1.rename(columns={'Courses 1':'Course_id','Course 1 Section':
 hw.to_sql('Homeworks', conn, if_exists = 'replace', index = False)
 
 #hw grades
+hw_grade1 = data_s[['Email','Courses 1','Course 1 Section','Course 1 HW_No','Course 1 HW_Grade']]
+hw_grade2 = data_s[['Email','Courses 2','Course 2 Section','Course 2 HW_No','Course 2 HW_Grade']]
+hw_grade3 = data_s[['Email','Courses 3','Course 3 Section','Course 3 HW_No','Course 3 HW_Grade']]
 
+hw_grade = pd.concat([hw_grade1.rename(columns={'Courses 1':'Course_id','Course 1 Section':'Sec_no','Course 1 HW_No':'HW_no','Course 1 HW_Grade':'Grade'}),hw_grade2.rename(columns={'Courses 2':'Course_id','Course 2 Section':'Sec_no','Course 2 HW_No':'HW_no','Course 2 HW_Grade':'Grade'}),hw_grade3.rename(columns={'Courses 3':'Course_id','Course 3 Section':'Sec_no','Course 3 HW_No':'HW_no','Course 3 HW_Grade':'Grade'})]).drop_duplicates(ignore_index = True).sort_values(by = 'Email')
+hw_grade.to_sql('Homework_grades', conn, if_exists = 'replace', index = False)
 
 #exam
+exam_1 = data_s[['Courses 1','Course 1 Section','Course 1 EXAM_No','Course 1 Exam_Details']]
+exam_2 = data_s[['Courses 2','Course 2 Section','Course 2 EXAM_No','Course 2 Exam_Details']]
+exam_3 = data_s[['Courses 3','Course 3 Section','Course 3 EXAM_No','Course 3 Exam_Details']]
 
+exam = pd.concat([exam_1.rename(columns={'Courses 1':'Course_id','Course 1 Section':'Sec_no','Course 1 EXAM_No':'Exam_no','Course 1 Exam_Details':'Exam_Details'}),exam_2.rename(columns={'Courses 2':'Course_id','Course 2 Section':'Sec_no','Course 2 EXAM_No':'Exam_no','Course 2 Exam_Details':'Exam_Details'}),exam_3.rename(columns={'Courses 3':'Course_id','Course 3 Section':'Sec_no','Course 3 EXAM_No':'Exam_no','Course 3 Exam_Details':'Exam_Details'})]).dropna(axis = 0, subset = ['Exam_no']).drop_duplicates(ignore_index = True).sort_values(by = 'Course_id')
+exam.to_sql('Exams', conn, if_exists = 'replace', index = False)
 
 #exam grades
+exam_grade1 = data_s[['Email','Courses 1','Course 1 Section','Course 1 EXAM_No','Course 1 EXAM_Grade']]
+exam_grade2 = data_s[['Email','Courses 2','Course 2 Section','Course 2 EXAM_No','Course 2 EXAM_Grade']]
+exam_grade3 = data_s[['Email','Courses 3','Course 3 Section','Course 3 EXAM_No','Course 3 EXAM_Grade']]
 
+exam_grade = pd.concat([exam_grade1.rename(columns={'Courses 1':'Course_id','Course 1 Section':'Sec_no','Course 1 EXAM_No':'Exam_no','Course 1 EXAM_Grade':'Grade'}),exam_grade2.rename(columns={'Courses 2':'Course_id','Course 2 Section':'Sec_no','Course 2 EXAM_No':'Exam_no','Course 2 EXAM_Grade':'Grade'}),exam_grade3.rename(columns={'Courses 3':'Course_id','Course 3 Section':'Sec_no','Course 3 EXAM_No':'Exam_no','Course 3 EXAM_Grade':'Grade'})]).dropna(axis = 0, subset = ['Exam_no']).drop_duplicates(ignore_index = True).sort_values(by = 'Email')
+exam_grade.to_sql('Exam_grades', conn, if_exists = 'replace', index = False)
 
 #posts
 post = data_c[['Courses','Post 1','Post 1 By']]

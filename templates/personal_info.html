@@ -15,34 +15,49 @@
                 <tbody>
                     <tr>
                         <th>Name :</th>
-                        <th>{{info[0][0]}}</th>
-                    </tr>
-                    <tr>
-                        <th>Age :</th>
                         <th>{{info[0][1]}}</th>
                     </tr>
                     <tr>
-                        <th>Gender :</th>
+                        <th>Age :</th>
                         <th>{{info[0][2]}}</th>
                     </tr>
                     <tr>
-                        <th>Major :</th>
+                        <th>Gender :</th>
                         <th>{{info[0][3]}}</th>
                     </tr>
+                    {% if login_type == 'Student'%}
                     <tr>
-                        <th>Address :</th>
+                        <th>Major :</th>
                         <th>{{info[0][4]}}</th>
                     </tr>
                     <tr>
-                        <th>Zip Code:</th>
+                        <th>Address :</th>
                         <th>{{info[0][5]}}</th>
                     </tr>
+                    <tr>
+                        <th>Zip Code:</th>
+                        <th>{{info[0][6]}}</th>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <th>Office Address:</th>
+                        <th>{{info[0][4]}}</th>
+                    </tr>
+                    <tr>
+                        <th>Department:</th>
+                        <th>{{info[0][5]}}</th>
+                    </tr>
+                    <tr>
+                        <th>Title:</th>
+                        <th>{{info[0][6]}}</th>
+                    </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </div>
         <div class = "class-body">
-            <a class = "btn btn-success" href="{{ url_for('change_password', email=info[0][6], login_type = 'Students')}}" role = "button">Update Password</a>
-            <a class = "btn btn-success" href="{{ url_for('Student', user = info[0][6])}}" role="button">Go Back</a>
+            <a class = "btn btn-success" href="{{ url_for('change_password', email=info[0][0], login_type =login_type)}}" role = "button">Update Password</a>
+            <a class = "btn btn-success" href="{{ url_for(login_type, user = info[0][0])}}" role="button">Go Back</a>
         </div>
     </div>
 </body>

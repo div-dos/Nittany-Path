@@ -37,14 +37,14 @@ def Student(user):
     course = get_courses(user)
     return render_template('student.html', error = error, student_email = user, course = course)
 
-@app.route('/display_personal_info/<string:email>', methods = ['POST', 'GET'])
-def display_personal_info(email):
+@app.route('/display_personal_info/<string:email>/<string:login_type>', methods = ['POST', 'GET'])
+def display_personal_info(email,login_type):
     error = None
-    info = get_personal_info(email)
-    return render_template('personal_info.html', error = error, info = info)
+    info = get_personal_info(email,login_type)
+    return render_template('personal_info.html', error = error, info = info, login_type=login_type)
 
-@app.route('/change_password/<string:email>', methods = ['POST', 'GET'])
-def change_password(email, login_type = 'Students'):
+@app.route('/change_password/<string:email>/<string:login_type>', methods = ['POST', 'GET'])
+def change_password(email, login_type):
     error = None
     if request.method == 'POST':
         #print('success')
@@ -53,23 +53,50 @@ def change_password(email, login_type = 'Students'):
             error = update_password(login_type,email,request.form['oldpass'],request.form['newpass'])
         else:
             error = 'New Password and Confirm Password are not same! TRY AGAIN!'
-        return render_template('change_password.html', error = error, email = email)
+        return render_template('change_password.html', error = error, email = email, login_type = login_type)
 
     #print('success')
-    return render_template('change_password.html', error = error, email = email)
+    return render_template('change_password.html', error = error, email = email, login_type = login_type)
 
-@app.route('/display_course/<string:email>/<string:course_id><float:section>', methods = ['POST', 'GET'])
+@app.route('/display_course/<string:email>/<string:course_id>/<float:section>', methods = ['POST', 'GET'])
 def display_course(email,course_id,section):
     error = None
-    course, prof_info = get_course_info(email, course_id, section)
-    render_template('course_info.html', error = error, course = course, section = section, prof_info = prof_info)
-    return None
+    course, prof_info, hw_description, hw_grades, exam_description, exam_grades  = get_course_info(email, course_id, section)
+    if request.method == 'POST':
+        if request.form['submit_button'] == 'drop_course':
+            if drop_course(email,course_id):
+                return redirect(url_for('Student', user = email))
+            error = 'Unable To drop the course -> The Drop deadline has passed!'
+        elif request.form['submit_button'] == 'post':
+            return render_template('course_info.html', error = error, email = email, course = course, section = section, prof_info = prof_info, hw = hw_description, hw_grade = hw_grades, exam = exam_description, exam_grade = exam_grades)
+    return render_template('course_info.html', error = error, email = email, course = course, section = section, prof_info = prof_info, hw = hw_description, hw_grade = hw_grades, exam = exam_description, exam_grade = exam_grades)
 
 @app.route('/Professor/<string:user>', methods = ['POST', 'GET'])
 def Professor(user):
     error = None
-    course = get_courses(user)
-    return render_template('student.html', error = error, student_email = user, course = course)
+    course = teaching_course(user)
+    return render_template('professor.html', error = error, email = user, course = course)
+
+@app.route('/display_teaching/<string:email>/<string:course_id>/<float:section>', methods = ['POST', 'GET'])
+def display_teaching(email, course_id, section):
+    error = None
+    course, hw, exam = get_teaching_info(email, course_id, section)
+    print(course, hw, exam)
+    if request.method == 'POST':
+        #for adding a new post or comment
+        return None
+    
+    return render_template('prof_teaching_course.html', error = error, email = email, course = course, section = section, hw = hw, exam = exam)
+
+@app.route('/create_assignment/<string:email>/<string:assignment>', methods = ['POST', 'GET'])
+def create_assignment(email, assignment):
+    error = None
+    return None
+
+@app.route('/grade_course/<string:email>/<string:assignment>/<float:assignment_no>', methods = ['POST', 'GET'])
+def grade_course(emai, assignment, assignment_no):
+    error = None
+    return render_template('assignment_grade.html', error = error)
 
 @app.route('/Teaching Assistance/<string:user>', methods = ['POST', 'GET'])
 def Teaching_assistance(user):
@@ -97,9 +124,12 @@ def get_courses(email):
     conn.close()
     return result
 
-def get_personal_info(email):
+def get_personal_info(email, login_type):
     conn = sqlite3.connect('Database/final_test.db')
-    cursor = conn.execute("SELECT Name, Age, Gender, Major, Street, Zipcode, Email FROM Students WHERE Email = '"+str(email)+"'")
+    if login_type == 'Student':
+        cursor = conn.execute("SELECT Email, Name, Age, Gender, Major, Street, Zipcode FROM Students WHERE Email = '"+str(email)+"'")
+    else:
+        cursor = conn.execute("SELECT Email, Name, Age, Gender, Office_address, Department, Title FROM Professors Where Email = '"+str(email)+"'")
     result = cursor.fetchall()
     conn.close()
     return result
@@ -115,8 +145,8 @@ def update_password(login_type, email, oldpass, newpass):
         conn = sqlite3.connect('Database/final_test.db')
         #update password
         print(login_type, newpass, email)
-        print("UPDATE "+str(login_type)+" SET Password = '"+str(newpass)+"' WHERE Email = '"+str(email)+"'")
-        conn.execute("UPDATE "+str(login_type)+" SET Password = '"+str(newpass)+"' WHERE Email = '"+str(email)+"'")
+        print("UPDATE "+str(login_type)+"s SET Password = '"+str(newpass)+"' WHERE Email = '"+str(email)+"'")
+        conn.execute("UPDATE "+str(login_type)+"s SET Password = '"+str(newpass)+"' WHERE Email = '"+str(email)+"'")
         conn.close()
 
         #conn = sqlite3.connect('Database/final_test.db')
@@ -130,8 +160,7 @@ def update_password(login_type, email, oldpass, newpass):
 
 def get_course_info(email, course_id, section):
     conn = sqlite3.connect('Database/final_test.db')
-    course = conn.execute("SELECT Course_id FROM Courses WHERE Course_id = '"+str(course_id)+"'")
-    #, Course_name, Course_description
+    course = conn.execute("SELECT Course_id, Course_name, Course_description FROM Courses WHERE Course_id = '"+str(course_id)+"'")
     teaching_team_id = conn.execute("SELECT Teaching_team_id FROM Sections WHERE (Course_id = '"+str(course_id)+"' AND Sec_no = "+str(section)+")")
     for row in teaching_team_id:
         tid = row[0]
@@ -140,35 +169,71 @@ def get_course_info(email, course_id, section):
         pmail = row[0]
     prof_info = conn.execute("SELECT Name, Email, Office_address FROM Professors WHERE Email = '"+str(pmail)+"'")
 
-    #hw_grades = conn.execute("SELECT hw_no, grade FROM Homework_grades WHERE (student_email = '"+str(email)+"' AND course_id = '"+str(course_id)+"' AND sec_no = '"+float(section)+"')")
-    #hw_description = conn.execute("SELECT hw_no, hw_details FROM Homeworks WHERE (course_id = '"+str(course_id)+"' AND sec_no = '"+float(section)+"')")
+    hw_grades = conn.execute("SELECT HW_no, Grade FROM Homework_grades WHERE (Email = '"+str(email)+"' AND Course_id = '"+str(course_id)+"' AND Sec_no = '"+str(section)+"')")
+    hw_description = conn.execute("SELECT HW_no, HW_Details FROM Homeworks WHERE (Course_id = '"+str(course_id)+"' AND Sec_no = '"+str(section)+"')")
 
-    #exam_grades = conn.execute("SELECT exam_no, grade FROM Exam_grades WHERE (student_email = '"+str(email)+"' AND course_id = '"+str(course_id)+"' AND sec_no = '"+float(section)+"')")
-    #exam_description = conn.execute("SELECT exam_no, exam_details FROM Exams WHERE (course_id = '"+str(course_id)+"' AND sec_no = '"+float(section)+"')")
+    exam_grades = conn.execute("SELECT Exam_no, Grade FROM Exam_grades WHERE (Email = '"+str(email)+"' AND Course_id = '"+str(course_id)+"' AND Sec_no = '"+str(section)+"')")
+    exam_description = conn.execute("SELECT Exam_no, Exam_Details FROM Exams WHERE (Course_id = '"+str(course_id)+"' AND Sec_no = '"+str(section)+"')")
 
+    c = course.fetchall()
+    p = prof_info.fetchall()
+    hw = hw_description.fetchall()
+    hw_g = hw_grades.fetchall()
+    ex = exam_description.fetchall()
+    ex_g = exam_grades.fetchall()
     #post = conn.execute("SELECT post_no, post_info FROM Posts WHERE (student_email = '"+str(email)+"' AND course_id = '"+str(course_id)+"'")
     #comment = conn.execute("SELECT post_no, comment_no, comment_info FROM Comments WHERE (student_email = '"+str(email)+"' AND course_id = '"+str(course_id)+"'")
+    
+    #for row in course:
+    #    print(row[0],row[1],row[2])
+
     conn.close()
-
-    return course, prof_info
-    #, hw_description, hw_grades, exam_description, exam_grades, post, comment
-
-#def create_post():
-#def create_comment():
+    return c, p, hw, hw_g, ex, ex_g
+    #, post, comment
 
 def drop_course(email, course_id):
     conn = sqlite3.connect('Database/final_test.db')
     result = conn.execute("SELECT Late_drop_deadline FROM Courses WHERE Course_id = '"+str(course_id)+"'")
-    drop_date = str(result[0][0]).split('/')
-    drop = datetime.date(drop_date[2],drop_date[0],drop_date[1])
+    r = result.fetchall()
+    drop_date = str(r[0][0]).split('/')
+    drop = datetime.date(2000+int(drop_date[2]),int(drop_date[0]),int(drop_date[1]))
+
+    print(drop, datetime.date.today())
 
     if datetime.date.today() <= drop:
         conn.execute("DELETE FROM Enrolls WHERE (Email = '"+str(email)+"' AND Course_id = '"+str(course_id)+"')")
         #conn.execute("DELETE FROM Posts WHERE (Email = '"+str(email)+"' AND Course_id = '"+str(course_id)+"')")
         #conn.execute("DELETE FROM Comments WHERE (Email = '"+str(email)+"' AND Course_id = '"+str(course_id)+"')")
-        return 'Successfully Dropped the course '+str(course_id)
+        return True
+        #'Successfully Dropped the course '+str(course_id)
 
-    return 'Unsuccessfull to Drop the course '+str(course_id)+' (Course drop deadline has passed :'+str(drop)+' !!)'
+    return False
+    #'Unsuccessfull to Drop the course '+str(course_id)+' (Course drop deadline has passed :'+str(drop)+' !!)'
+
+def teaching_course(email):
+    conn = sqlite3.connect('Database/final_test.db')
+    teaching_id = conn.execute("SELECT Teaching_team_id FROM Prof_teaching_teams WHERE Email = '"+str(email)+"'")
+    for row in teaching_id:
+        tid = row[0]
+    cursor = conn.execute("SELECT Course_id, Sec_no FROM Sections WHERE Teaching_team_id = '"+str(tid)+"'")
+    result = cursor.fetchall()
+    conn.close()
+    return result
+
+def get_teaching_info(email, course_id, section):
+    conn = sqlite3.connect('Database/final_test.db')
+    course = conn.execute("SELECT Course_id, Course_name, Course_description FROM Courses WHERE Course_id = '"+str(course_id)+"'")
+    hw_description = conn.execute("SELECT HW_no, HW_Details FROM Homeworks WHERE (Course_id = '"+str(course_id)+"' AND Sec_no = '"+str(section)+"')")
+    exam_description = conn.execute("SELECT Exam_no, Exam_Details FROM Exams WHERE (Course_id = '"+str(course_id)+"' AND Sec_no = '"+str(section)+"')")
+
+    c = course.fetchall()
+    h = hw_description.fetchall()
+    e = exam_description.fetchall()
+    conn.close()
+    return c, h, e
+
+#def create_post():
+#def create_comment():
 
 if __name__ == '__main__':
     app.run()
